@@ -1,4 +1,3 @@
-<!--                             LINE LENGTH: 80                             -->
 # Creating a Stack Project
 This guide was originally written as a Discord message for students. It's not a
 complete guide - *nor a very good one* - but it serves to just introduce the
