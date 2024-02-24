@@ -2,7 +2,9 @@
 # Creating a Stack Project
 This guide was originally written as a Discord message for students. It's not a
 complete guide - *nor a very good one* - but it serves to just introduce the
-concept and allow students to figure the rest out.
+concept and allow students to figure the rest out. Oh, and it's mostly for
+projects involving the tools [Alex](https://hackage.haskell.org/package/alex)
+and [Happy](https://hackage.haskell.org/package/happy).
 ## Generating the Project
 To create a Stack project, `cd` into the location you want to *create the
 folder* and do
@@ -96,3 +98,47 @@ Windows), run:
 stack exec -- whereis <projectname>-exe
 ```
 and this'll output the location.
+## Editing the project
+The `new-template` template creates the following directories:
+- app
+- src
+- test
+Generally, "app" is for user-facing IO-related code, "src" is for your internal
+code, and "test" is for your testing suite. "app" contains your `Main` module
+with a `main` function. This is what is called when you run your program.
+### app and src
+If you look in the generated files, there is app/Main.hs generated for you.
+Inside, it says it exports one function (`main`) and imports `Lib`.
+`Lib` comes from src/Lib.hs, containing an example exported function called
+`someFunc`. I would 100% recommend **not** renaming these files. Create files
+around them, like...
+```haskell
+module Lib (runLanguage) where
+
+import Tokens (alexScanTokens)
+
+...
+```
+(and yes, your Alex and Happy files should be placed in src. Either directly
+in src or something like src/Parsing).
+### Haskell module names
+Let's say you call your Alex file `Lexer.x`, and it's located in `src/Parsing`.
+Haskell expects the module name to be the same as the location of the file
+relative to the root (in this case, app in app or src in src), replacing
+directories with `.`. This means `Lexer.x` will have
+`module Parsing.Lexer where` at the top. From `Lib`, you then do
+`import Parsing.Lexer`.
+## Running Alex/Happy anyway
+If you *wish* to manually run Alex or Happy (just to inspect the generated
+files), you can do:
+```console
+stack exec -- alex <file>
+stack exec -- happy <file>
+```
+but please delete the files after so they don't mess up the project.
+## Final note
+You *will* see a lot of VSCode errors. You can pretty much ignore most of these.
+Obviously, your Alex/Happy .hs files don't exist anymore, and HLS isn't smart
+enough to figure that out. Don't use VSCode errors as your debugging.
+**Build the project. If that doesn't work, then read the compiler errors and
+fix them.**
