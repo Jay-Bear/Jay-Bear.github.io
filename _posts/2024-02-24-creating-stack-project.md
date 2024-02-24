@@ -63,12 +63,12 @@ executables:
     - alex:alex
     - happy:happy
 ```
-### Other info
+### Other Info
 Feel free to edit other info like the version, author(s), etc. at the top of
 the file.
 **Do not edit the .cabal file**. When you build (compile) your project, Stack
 will automatically edit this with all the info you need.
-## Building the project
+## Building the Project
 ### Alex and Happy
 To reiterate, ***you should not run alex and/or happy manually***. This can
 mess up your Stack project, as Stack will then use the generated .hs file
@@ -90,14 +90,14 @@ stack exec -- <projectname>-exe [args]
 ```
 The `--` and the space following are **essential**. For example:
 `stack exec -- minihaskell-exe program1.mhs`
-### Locating the executable
+### Locating the Executable
 If you wish to find the actual executable file Haskell has made (.exe on
 Windows), run:
 ```console
 stack exec -- whereis <projectname>-exe
 ```
 and this'll output the location.
-## Editing the project
+## Editing the Project
 The `new-template` template creates the following directories:
 - app
 - src
@@ -121,14 +121,14 @@ import Tokens (alexScanTokens)
 ```
 (and yes, your Alex and Happy files should be placed in src. Either directly
 in src or something like src/Parsing).
-### Haskell module names
+### Haskell Module Names
 Let's say you call your Alex file `Lexer.x`, and it's located in `src/Parsing`.
 Haskell expects the module name to be the same as the location of the file
 relative to the root (in this case, app in app or src in src), replacing
 directories with `.`. This means `Lexer.x` will have
 `module Parsing.Lexer where` at the top. From `Lib`, you then do
 `import Parsing.Lexer`.
-## Running Alex/Happy anyway
+## Running Alex/Happy Anyway
 If you *wish* to manually run Alex or Happy (just to inspect the generated
 files), you can do:
 ```console
@@ -136,7 +136,7 @@ stack exec -- alex <file>
 stack exec -- happy <file>
 ```
 but please delete the files after so they don't mess up the project.
-## Final note
+## Final Note
 You *will* see a lot of VSCode errors. You can pretty much ignore most of these.
 Obviously, your Alex/Happy .hs files don't exist anymore, and HLS isn't smart
 enough to figure that out. Don't use VSCode errors as your debugging.
