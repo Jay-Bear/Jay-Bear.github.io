@@ -1,5 +1,4 @@
-Here you can say lots of fun things about your site.
+# Jay's Blog
+This is a place for me to write about machine learning, Haskell, math, whatever.
 
-Maybe say a some things about yourself.
-
-Or maybe what you plan to blog about.
+Seems like all the cool researchers are doing this, so why not?
