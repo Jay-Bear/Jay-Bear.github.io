@@ -102,6 +102,7 @@ The `new-template` template creates the following directories:
 - app
 - src
 - test
+
 Generally, "app" is for user-facing IO-related code, "src" is for your internal
 code, and "test" is for your testing suite. "app" contains your `Main` module
 with a `main` function. This is what is called when you run your program.
