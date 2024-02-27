@@ -72,7 +72,7 @@ $0$. This means our extension is
 $$f\!\left(a+\varepsilon b\right)=f\!\left(a\right)+\varepsilon
 bf'\!\left(a\right)$$
 
-and by considering the dual term $bf'\!\left(a\right)$, we can see this
+and by considering the dual term $bf'\\!\left(a\right)$, we can see this
 performs the chain rule by applying a second function:
 
 $$g\!\left(f\!\left(a+\varepsilon b\right)\right)=
@@ -80,7 +80,7 @@ g\!\left(f\!\left(a\right)+\varepsilon bf'\!\left(a\right)\right)=
 g\!\left(f\!\left(a\right)\right)+\varepsilon bf'\!\left(a\right)g'\!\left(
 f\!\left(a\right)\right)$$
 
-where the chain rule appears as $f'\!\left(a\right)g'\!\left(f\!\left(a
+where the chain rule appears as $f'\\!\left(a\right)g'\\!\left(f\\!\left(a
 \right)\right)$! From this, we can also see that setting $b=1$ in the original
 value will give us the gradient with respect to $a$ in the dual term.
 
@@ -121,8 +121,8 @@ or, instead of `(-)`, you can implement `negate`, but we're not going to do that
 here.
 
 Let's start with `abs`. If we replace $f$ in our dual extension with
-$\mathrm{abs}$, we get $\mathrm{abs}\!\left(a+\varepsilon b\right)=
-\mathrm{abs}\!\left(a\right)+\varepsilon b\mathrm{abs}'\!\left(a\right)$, but
+$\mathrm{abs}$, we get $\mathrm{abs}\\!\left(a+\varepsilon b\right)=
+\mathrm{abs}\\!\left(a\right)+\varepsilon b\mathrm{abs}'\\!\left(a\right)$, but
 the derivative of $\mathrm{abs}$ is simply [the sign function][5] already
 implemented for us as `signum`. This means `abs` can be written as
 ```haskell
@@ -241,73 +241,73 @@ a\right)$$
 
 This will be a lot of filling in values, so here it is for every function:
 
-$\mathrm{exp}'\!\left(x\right)=\mathrm{exp}\!\left(x\right)$
+$\mathrm{exp}'\\!\left(x\right)=\mathrm{exp}\\!\left(x\right)$
 ```haskell
 exp (Dual x dx) =
   let x' = exp x in Dual x' (dx * x')
 ```
 
-$\mathrm{log}'\!\left(x\right)=\dfrac{1}{x}$
+$\mathrm{log}'\\!\left(x\right)=\dfrac{1}{x}$
 ```haskell
 log (Dual x dx) =
   Dual (log x) (dx / x)
 ```
 
-$\mathrm{sin}'\!\left(x\right)=\mathrm{cos}\!\left(x\right)$
+$\mathrm{sin}'\\!\left(x\right)=\mathrm{cos}\\!\left(x\right)$
 ```haskell
 sin (Dual x dx) =
   Dual (sin x) (dx * cos x)
 ```
 
-$\mathrm{cos}'\!\left(x\right)=-\mathrm{sin}\!\left(x\right)$
+$\mathrm{cos}'\\!\left(x\right)=-\mathrm{sin}\\!\left(x\right)$
 ```haskell
 cos (Dual x dx) =
   Dual (cos x) (-dx * sin x)
 ```
 
-$\mathrm{asin}'\!\left(x\right)=\dfrac{1}{\sqrt{1-x^2}}$
+$\mathrm{asin}'\\!\left(x\right)=\dfrac{1}{\sqrt{1-x^2}}$
 ```haskell
 asin (Dual x dx) =
   Dual (asin x) (dx / sqrt (1 - x * x))
 ```
 
-$\mathrm{acos}'\!\left(x\right)=-\dfrac{1}{\sqrt{1-x^2}}$
+$\mathrm{acos}'\\!\left(x\right)=-\dfrac{1}{\sqrt{1-x^2}}$
 ```haskell
 acos (Dual x dx) =
   Dual (acos x) (-dx / sqrt (1 - x * x))
 ```
 
-$\mathrm{atan}'\!\left(x\right)=\dfrac{1}{x^2+1}$
+$\mathrm{atan}'\\!\left(x\right)=\dfrac{1}{x^2+1}$
 ```haskell
 atan (Dual x dx) =
   Dual (atan x) (dx / (1 + x * x))
 ```
 
-$\mathrm{sinh}'\!\left(x\right)=\mathrm{cosh}\!\left(x\right)$
+$\mathrm{sinh}'\\!\left(x\right)=\mathrm{cosh}\\!\left(x\right)$
 ```haskell
 sinh (Dual x dx) =
   Dual (sinh x) (dx * cosh x)
 ```
 
-$\mathrm{cosh}'\!\left(x\right)=\mathrm{sinh}\!\left(x\right)$
+$\mathrm{cosh}'\\!\left(x\right)=\mathrm{sinh}\\!\left(x\right)$
 ```haskell
 cosh (Dual x dx) =
   Dual (cosh x) (dx * sinh x)
 ```
 
-$\mathrm{asinh}'\!\left(x\right)=\dfrac{1}{\sqrt{x^2+1}}$
+$\mathrm{asinh}'\\!\left(x\right)=\dfrac{1}{\sqrt{x^2+1}}$
 ```haskell
 asinh (Dual x dx) =
   Dual (asinh x) (dx / sqrt (1 + x * x))
 ```
 
-$\mathrm{acosh}'\!\left(x\right)=\dfrac{1}{\sqrt{x-1}\sqrt{x+1}}$
+$\mathrm{acosh}'\\!\left(x\right)=\dfrac{1}{\sqrt{x-1}\sqrt{x+1}}$
 ```haskell
 acosh (Dual x dx) =
   Dual (acosh x) (dx / (sqrt (x - 1) * sqrt (x + 1)))
 ```
 
-$\mathrm{atanh}'\!\left(x\right)=\dfrac{1}{1-x^2}$
+$\mathrm{atanh}'\\!\left(x\right)=\dfrac{1}{1-x^2}$
 ```haskell
 atanh (Dual x dx) =
   Dual (atanh x) (dx / (1 - x * x))
