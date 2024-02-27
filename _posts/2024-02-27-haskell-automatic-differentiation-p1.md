@@ -58,10 +58,10 @@ at any point we just replace it with $0$ if we want.
 Dual numbers become interesting when we find out that they can perform
 automatic differentiation. Let's consider a function
 $f:\mathbb{R}\to\mathbb{R}$. In order to extend $f$ to the dual numbers
-(producing $\tilde{f}:\mathbb{D}\to\mathbb{D}$), we can use $f$'s Taylor series
+(producing $f:\mathbb{D}\to\mathbb{D}$), we can use $f$'s Taylor series
 expansion:
 
-$$\tilde{f}\!\left(a+\varepsilon b\right)=\sum_{n=0}^\infty\dfrac{
+$$f\!\left(a+\varepsilon b\right)=\sum_{n=0}^\infty\dfrac{
 \varepsilon^nb^nf^{\left(n\right)}\!\left(a\right)}{n!}=f\!\left(a\right)+
 \varepsilon bf'\!\left(a\right)+\frac{1}{2}\varepsilon^2b^2f''\!\left(a
 \right)+\cdots$$
@@ -69,14 +69,14 @@ $$\tilde{f}\!\left(a+\varepsilon b\right)=\sum_{n=0}^\infty\dfrac{
 But since $\varepsilon^2=0$, the $n=2$ term and anything after it must also be
 $0$. This means our extension is
 
-$$\tilde{f}\!\left(a+\varepsilon b\right)=f\!\left(a\right)+\varepsilon
+$$f\!\left(a+\varepsilon b\right)=f\!\left(a\right)+\varepsilon
 bf'\!\left(a\right)$$
 
 and by considering the dual term $bf'\!\left(a\right)$, we can see this
 performs the chain rule by applying a second function:
 
-$$\tilde{g}\!\left(\tilde{f}\!\left(a+\varepsilon b\right)\right)=
-\tilde{g}\!\left(f\!\left(a\right)+\varepsilon bf'\!\left(a\right)\right)=
+$$g\!\left(f\!\left(a+\varepsilon b\right)\right)=
+g\!\left(f\!\left(a\right)+\varepsilon bf'\!\left(a\right)\right)=
 g\!\left(f\!\left(a\right)\right)+\varepsilon bf'\!\left(a\right)g'\!\left(
 f\!\left(a\right)\right)$$
 
