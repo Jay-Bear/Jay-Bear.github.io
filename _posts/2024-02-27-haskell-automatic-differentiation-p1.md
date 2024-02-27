@@ -23,8 +23,8 @@ The power behind most of this computation is the chain rule, which you may be
 familiar with from calculus classes. Here it is in two forms:
 
 $$\dfrac{\mathrm{d}z}{\mathrm{d}x}=\dfrac{\mathrm{d}z}{\mathrm{d}y}
-\dfrac{\mathrm{d}y}{\mathrm{d}x},\ \ \ \left(g\circ f\right)'\\!\left(x\right)=
-f'\\!\left(x\right)g'\\!\left(f\\!\left(x\right)\right)$$
+\dfrac{\mathrm{d}y}{\mathrm{d}x},\ \ \ \left(g\circ f\right)'\!\left(x\right)=
+f'\!\left(x\right)g'\!\left(f\!\left(x\right)\right)$$
 
 Essentially, provided we know the derivatives for both parts, we can compute
 the derivative for their chain. From this, we can compute gradients for large
@@ -36,14 +36,14 @@ this, and the primary method this post looks into is using **dual numbers**.
 ## Dual Numbers
 I'm going to assume you're familiar with [complex numbers][1], essentially
 
-$$z=a+ib,\ \ \ i^2=-1,\ \ \ a,\\,b\in\mathbb{R}.$$
+$$z=a+ib,\ \ \ i^2=-1,\ \ \ a,\,b\in\mathbb{R}.$$
 
 Complex numbers have distant cousins that live in a different [ring][2], and
 these cousins are the **dual numbers**. The concept is similar, except instead
 of $i$ we have $\varepsilon$ where
 
 $$z=a+\varepsilon b,\ \ \ \varepsilon^2=0,\ \varepsilon\neq 0,\ \ \
-a,\\,b\in\mathbb{R}.$$
+a,\,b\in\mathbb{R}.$$
 
 Seasoned mathematicians will see this and think "hmm yes, makes sense". For the
 rest of you thinking "how on ***Earth*** can something not be zero yet when
@@ -61,26 +61,26 @@ $f:\mathbb{R}\to\mathbb{R}$. In order to extend $f$ to the dual numbers
 (producing $\tilde{f}:\mathbb{D}\to\mathbb{D}$), we can use $f$'s Taylor series
 expansion:
 
-$$\tilde{f}\\!\left(a+\varepsilon b\right)=\sum_{n=0}^\infty\dfrac{
-\varepsilon^nb^nf^{\left(n\right)}\\!\left(a\right)}{n!}=f\\!\left(a\right)+
-\varepsilon bf'\\!\left(a\right)+\frac{1}{2}\varepsilon^2b^2f''\\!\left(a
+$$\tilde{f}\!\left(a+\varepsilon b\right)=\sum_{n=0}^\infty\dfrac{
+\varepsilon^nb^nf^{\left(n\right)}\!\left(a\right)}{n!}=f\!\left(a\right)+
+\varepsilon bf'\!\left(a\right)+\frac{1}{2}\varepsilon^2b^2f''\!\left(a
 \right)+\cdots$$
 
 But since $\varepsilon^2=0$, the $n=2$ term and anything after it must also be
 $0$. This means our extension is
 
-$$\tilde{f}\\!\left(a+\varepsilon b\right)=f\\!\left(a\right)+\varepsilon
-bf'\\!\left(a\right)$$
+$$\tilde{f}\!\left(a+\varepsilon b\right)=f\!\left(a\right)+\varepsilon
+bf'\!\left(a\right)$$
 
-and by considering the dual term $bf'\\!\left(a\right)$, we can see this
+and by considering the dual term $bf'\!\left(a\right)$, we can see this
 performs the chain rule by applying a second function:
 
-$$\tilde{g}\\!\left(\tilde{f}\\!\left(a+\varepsilon b\right)\right)=
-\tilde{g}\\!\left(f\\!\left(a\right)+\varepsilon bf'\\!\left(a\right)\right)=
-g\\!\left(f\\!\left(a\right)\right)+\varepsilon bf'\\!\left(a\right)g'\\!\left(
-f\\!\left(a\right)\right)$$
+$$\tilde{g}\!\left(\tilde{f}\!\left(a+\varepsilon b\right)\right)=
+\tilde{g}\!\left(f\!\left(a\right)+\varepsilon bf'\!\left(a\right)\right)=
+g\!\left(f\!\left(a\right)\right)+\varepsilon bf'\!\left(a\right)g'\!\left(
+f\!\left(a\right)\right)$$
 
-where the chain rule appears as $f'\\!\left(a\right)g'\\!\left(f\\!\left(a
+where the chain rule appears as $f'\!\left(a\right)g'\!\left(f\!\left(a
 \right)\right)$! From this, we can also see that setting $b=1$ in the original
 value will give us the gradient with respect to $a$ in the dual term.
 
@@ -121,8 +121,8 @@ or, instead of `(-)`, you can implement `negate`, but we're not going to do that
 here.
 
 Let's start with `abs`. If we replace $f$ in our dual extension with
-$\mathrm{abs}$, we get $\mathrm{abs}\\!\left(a+\varepsilon b\right)=
-\mathrm{abs}\\!\left(a\right)+\varepsilon b\mathrm{abs}'\\!\left(a\right)$, but
+$\mathrm{abs}$, we get $\mathrm{abs}\!\left(a+\varepsilon b\right)=
+\mathrm{abs}\!\left(a\right)+\varepsilon b\mathrm{abs}'\!\left(a\right)$, but
 the derivative of $\mathrm{abs}$ is simply [the sign function][5] already
 implemented for us as `signum`. This means `abs` can be written as
 ```haskell
@@ -236,78 +236,78 @@ pi =
 After that, all functions take a single value, and we can just apply the same
 rule as we did for `abs` earlier:
 
-$$f\\!\left(a+\varepsilon b\right)=f\\!\left(a\right)+\varepsilon bf'\\!\left(
+$$f\!\left(a+\varepsilon b\right)=f\!\left(a\right)+\varepsilon bf'\!\left(
 a\right)$$
 
 This will be a lot of filling in values, so here it is for every function:
 
-$\mathrm{exp}'\\!\left(x\right)=\mathrm{exp}\\!\left(x\right)$
+$\mathrm{exp}'\!\left(x\right)=\mathrm{exp}\!\left(x\right)$
 ```haskell
 exp (Dual x dx) =
   let x' = exp x in Dual x' (dx * x')
 ```
 
-$\mathrm{log}'\\!\left(x\right)=\dfrac{1}{x}$
+$\mathrm{log}'\!\left(x\right)=\dfrac{1}{x}$
 ```haskell
 log (Dual x dx) =
   Dual (log x) (dx / x)
 ```
 
-$\mathrm{sin}'\\!\left(x\right)=\mathrm{cos}\\!\left(x\right)$
+$\mathrm{sin}'\!\left(x\right)=\mathrm{cos}\!\left(x\right)$
 ```haskell
 sin (Dual x dx) =
   Dual (sin x) (dx * cos x)
 ```
 
-$\mathrm{cos}'\\!\left(x\right)=-\mathrm{sin}\\!\left(x\right)$
+$\mathrm{cos}'\!\left(x\right)=-\mathrm{sin}\!\left(x\right)$
 ```haskell
 cos (Dual x dx) =
   Dual (cos x) (-dx * sin x)
 ```
 
-$\mathrm{asin}'\\!\left(x\right)=\dfrac{1}{\sqrt{1-x^2}}$
+$\mathrm{asin}'\!\left(x\right)=\dfrac{1}{\sqrt{1-x^2}}$
 ```haskell
 asin (Dual x dx) =
   Dual (asin x) (dx / sqrt (1 - x * x))
 ```
 
-$\mathrm{acos}'\\!\left(x\right)=-\dfrac{1}{\sqrt{1-x^2}}$
+$\mathrm{acos}'\!\left(x\right)=-\dfrac{1}{\sqrt{1-x^2}}$
 ```haskell
 acos (Dual x dx) =
   Dual (acos x) (-dx / sqrt (1 - x * x))
 ```
 
-$\mathrm{atan}'\\!\left(x\right)=\dfrac{1}{x^2+1}$
+$\mathrm{atan}'\!\left(x\right)=\dfrac{1}{x^2+1}$
 ```haskell
 atan (Dual x dx) =
   Dual (atan x) (dx / (1 + x * x))
 ```
 
-$\mathrm{sinh}'\\!\left(x\right)=\mathrm{cosh}\\!\left(x\right)$
+$\mathrm{sinh}'\!\left(x\right)=\mathrm{cosh}\!\left(x\right)$
 ```haskell
 sinh (Dual x dx) =
   Dual (sinh x) (dx * cosh x)
 ```
 
-$\mathrm{cosh}'\\!\left(x\right)=\mathrm{sinh}\\!\left(x\right)$
+$\mathrm{cosh}'\!\left(x\right)=\mathrm{sinh}\!\left(x\right)$
 ```haskell
 cosh (Dual x dx) =
   Dual (cosh x) (dx * sinh x)
 ```
 
-$\mathrm{asinh}'\\!\left(x\right)=\dfrac{1}{\sqrt{x^2+1}}$
+$\mathrm{asinh}'\!\left(x\right)=\dfrac{1}{\sqrt{x^2+1}}$
 ```haskell
 asinh (Dual x dx) =
   Dual (asinh x) (dx / sqrt (1 + x * x))
 ```
 
-$\mathrm{acosh}'\\!\left(x\right)=\dfrac{1}{\sqrt{x-1}\sqrt{x+1}}$
+$\mathrm{acosh}'\!\left(x\right)=\dfrac{1}{\sqrt{x-1}\sqrt{x+1}}$
 ```haskell
 acosh (Dual x dx) =
   Dual (acosh x) (dx / (sqrt (x - 1) * sqrt (x + 1)))
 ```
 
-$\mathrm{atanh}'\\!\left(x\right)=\dfrac{1}{1-x^2}$
+$\mathrm{atanh}'\!\left(x\right)=\dfrac{1}{1-x^2}$
 ```haskell
 atanh (Dual x dx) =
   Dual (atanh x) (dx / (1 - x * x))
@@ -324,7 +324,7 @@ allow strong usage of dual numbers for automatic differentiation.
 To test out using the dual numbers for automatic differentiation, let's
 implement [Newton's method for finding roots][7]:
 
-$$x_{n+1}=x_n-\dfrac{f\\!\left(x_n\right)}{f'\\!\left(x_n\right)}$$
+$$x_{n+1}=x_n-\dfrac{f\!\left(x_n\right)}{f'\!\left(x_n\right)}$$
 
 In order to do this, we need a higher-order function which takes a function and
 a starting point. The type for this should be:
@@ -359,7 +359,7 @@ newtonRoot f x0 =
 
 Applying this to a function is simple, let's define
 
-$$f\\!\left(x\right)=\cos\\!\left(3x\right)+x^2+x$$
+$$f\!\left(x\right)=\cos\!\left(3x\right)+x^2+x$$
 
 as our function, with a starting point of $x=-1$. We also need to define how
 many steps our method should take. $n=30$ should be fine:
