@@ -332,7 +332,7 @@ a starting point. The type for this should be:
 newtonRoot :: (Fractional a)
            => (Dual a -> Dual a) -- The function to find a root for.
            -> a                  -- The starting point.
-           -> a                  -- The numeric solution.
+           -> [a]                -- The numeric solutions at each step.
 ```
 `Fractional` is chosen as a class constraint on `a` because we need to use the
 `(/)` operator, which all `Fractional` types will have defined.
