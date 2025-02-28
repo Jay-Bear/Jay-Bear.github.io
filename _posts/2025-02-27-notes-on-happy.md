@@ -161,5 +161,172 @@ This encoding is important for constructing the AST and as part of the
 
 ### Reducing
 
-The second primary action is called **reducing**, which takes pops items from
-the stack, modifies them, and pushes to the stack.
+The second primary action is called **reducing**, which pops items from the
+stack, modifies them, and pushes to the stack. How this relates to PDA
+operations is somewhat obscured by the fact that PDAs usually only pop *one*
+item from the stack at a time. Generally a reduction operation can be thought
+of as *multiple transitions* that pop *multiple items*, transitioning states
+until completed. These reductions are usually written in the form
+
+$$A\to X_1X_2\cdots X_n$$
+
+where it replaces the **right-hand side** ($X_1X_2\cdots X_n$) on the stack
+with the **left-hand side** ($A$).
+
+The key concept here is that we're dealing with a generated pushdown automata,
+and we need to consider how the stack operations influence the parsing of our
+languages and construction of their ASTs.
+
+### Shift/Reduce Conflicts
+
+Let's use an example of a simple grammar
+
+```
+E ::= E -> E | ( E ) | C
+```
+
+where `C` is any Latin alphabet character. This grammar seems fine, but there's
+an issue if we attempt to parse the sequence `A -> B -> C`. Should this be
+`(A -> B) -> C` or `A -> (B -> C)`? This ambiguity causes a **shift/reduce**
+conflict when using an LALR(1) parser, and we can simulate this by defining a
+version of it in Happy:
+
+```
+E :: {Expression}
+  : char      {Sym $1   }
+  | E '->' E  {Map $1 $3}
+  | '(' E ')' {$2       }
+```
+
+The terms in the braces describe the reduction to perform for that
+corresponding sequence on the stack. The expansion\
+`E '->' E {Map $1 $3}`\
+says to reduce `E '->' E` on the stack to a `Map` value containing the two
+expressions.
+
+In parsing the sequence `'A' '->' 'B' '->' 'C'`, you see the following.\
+<small><i><b>Note:</b> The top of the stack is on the right, and this is
+hiding all the additional AST layers Happy uses.</i></small>
+
+| Stack                  | Buffer                  | Next Operation |
+| ---------------------- | ----------------------- | -------------- |
+|                        | `'A', ->, 'B', ->, 'C'` | SHIFT          |
+| `'A'`                  | `->, 'B', ->, 'C'`      | REDUCE         |
+| `Sym 'A'`              | `->, 'B', ->, 'C'`      | SHIFT          |
+| `Sym 'A', ->`          | `'B', ->, 'C'`          | SHIFT          |
+| `Sym 'A', ->, 'B'`     | `->, 'C'`               | REDUCE         |
+| `Sym 'A', ->, Sym 'B'` | `->, 'C'`               | **?**          |
+
+but what should that next operation be? It could shift and move the `->` onto
+the stack, or it could reduce\
+`Sym 'A', ->, Sym 'B'` into `Map (Sym 'A') (Sym 'B')`.\
+Either way we'd accept the string, but would have two different stack outputs
+depending on whether we shift or reduce:
+
+- If we *shift*, we end up with `Map (Sym 'A') (Map (Sym 'B') (Sym 'C'))`
+  (`A -> (B -> C)`).
+- If we *reduce*, we end up with `Map (Map (Sym 'A') (Sym 'B')) (Sym 'C')`
+  (`(A -> B) -> C`).
+
+To fix this, we need to specify which should occur, which is accomplished in
+this case by defining the **associativity** of `->`.
+
+#### A Note on Associativity
+
+Associativity is a property of operations. Strictly speaking, a binary operator
+$\star:X\times X\to X$ is associative if, for all $a,\,b,\,c\in X$
+
+$$\left(a\star b\right)\star c=a\star\left(b\star c\right).$$
+
+Binary operators such as integer addition ($+$) and real multiplication
+($\times$) are associative, but logical implication ($\Rightarrow$) is not,
+since
+
+$$\left(p\Rightarrow q\right)\Rightarrow r\not\equiv p\Rightarrow\left(q
+\Rightarrow r\right)$$
+
+However there's a *syntactic* associativity for logical implication. This
+refers to the ordering operators should be applied in if parentheses aren't
+specified. Should $p\Rightarrow q\Rightarrow r$ be read as
+$\left(p\Rightarrow q\right)\Rightarrow r$ or $p\Rightarrow\left(q\Rightarrow
+r\right)$? The commonly-accepted convention for logical implication is that it
+is **right-associative**, in this case $q\Rightarrow r$ should be read first,
+meaning
+
+$$\begin{align*}p\Rightarrow q\Rightarrow r&\equiv p\Rightarrow\left(q
+\Rightarrow r\right)\\&\not\equiv\left(p\Rightarrow q\right)\Rightarrow r
+\end{align*}$$
+
+Coming back to the previous example, mapping ($\to$ *or* $\mapsto$) is commonly
+right-associative, so we specify in Happy that this operator is
+right-associative in the way you have seen before:
+
+```
+%right '->'
+```
+
+Now if we continue the table, this associativity rule will be applied:
+
+| Stack                                     | Buffer    | Next Operation  |
+| ----------------------------------------- | --------- | --------------- |
+| ...                                       | ...       | ...             |
+| `Sym 'A', ->, 'B'`                        | `->, 'C'` | REDUCE          |
+| `Sym 'A', ->, Sym 'B'`                    | `->, 'C'` | SHIFT *(right)* |
+| `Sym 'A', ->, Sym 'B', ->`                | `'C'`     | SHIFT           |
+| `Sym 'A', ->, Sym 'B', ->, 'C'`           |           | REDUCE          |
+| `Sym 'A', ->, Sym 'B', ->' Sym 'C'`       |           | REDUCE          |
+| `Sym 'A', ->, Map (Sym 'B') (Sym 'C')`    |           | REDUCE          |
+| `Map (Sym 'A') (Map (Sym 'B') (Sym 'C'))` |           | ACCEPT          |
+
+Giving us a final result equivalent to `A -> (B -> C)`.
+
+#### Precedence
+
+Alternatively, one might have a grammar (described directly in Happy) like
+
+```
+E :: {Expression}
+  : char      {Sym $1   }
+  | E '+' E   {Add $1 $3}
+  | E '*' E   {Mul $1 $3}
+  | '(' E ')' {$2       }
+```
+
+Then, for the sequence `A * B + C`, should it be read as `(A * B) + C` or
+`A * (B + C)`? This is determined by precedence, where usually an ordering is
+assigned to the precedence of operators. If we say `*` has *higher* precedence
+than `+`, then we'll get `(A * B) + C`. Otherwise, if we say `*` has *lower*
+precedence than `+`, then we'll get `A * (B + C)`.
+
+The precedence essentially describes the order we wish to parse something. I'm
+not going to run through the full table, but you can try it for yourself and
+see what happens in terms of shifts and reductions.
+
+To set precedence of operators in Happy, you order the associativity
+declarations by placing an operator of **higher** precedence *below* operators
+of lower precedence. If we use common convention and say `*` has higher
+precedence than `+`, we'd have
+
+```
+%left '+'
+%left '*'
+```
+
+### Additional Concepts
+
+It's important to always keep in mind how the parser "sees" the sequence and
+how it uses the stack, since it's not always obvious what terms need
+associativity or precedence defined. Let's use a language which has an empty
+application operator, such that `AB` means applying `A` to `B`. This language
+also has conditionals `?(A):B:C` which means "if `A` then `B`, otherwise `C`".\
+How do we parse `?(A):B:C?(D):E:F`? Should it be `(?(A):B:C)(?(D):E:F)`?
+`?(A):B:(C?(D):E:F)`? Something else?
+
+If we assign a Happy grammar to this, we get
+```
+E :: {Expression}
+  : char                      {Sym $1       }
+  | '?' '(' E ')' ':' E ':' E {Cond $3 $6 $8}
+  | E E                       {App $1 $2    }
+  | '(' E ')'                 {$2           }
+```
