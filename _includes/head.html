@@ -10,15 +10,31 @@
   {%- endif -%}
 
   <!-- mathjax -->
-  <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
+  <script>
+  window.MathJax = {
+    tex: {
       inlineMath: [['$','$'], ['\\(','\\)']],
-      processEscapes: true
+      processEscapes: true,
+      autoload: {
+        color: [],
+        colorv2: ['color']
+      },
+      packages: {'[+]': ['noerrors']},
+      macros: {
+        L: ["\\mathopen{}\\mathclose{}\\left#1", 1],
+        R: ["\\right#1", 1]
+      }
+    },
+    options: {
+      ignoreHtmlClass: 'tex2jax_ignore',
+      processHtmlClass: 'tex2jax_process'
+    },
+    loader: {
+      load: ['[tex]/noerrors']
     }
-  });
+  };
   </script>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
   <!-- highlight.js support -->
   <link rel="stylesheet" href="/js/highlightjs/styles/github.css">
